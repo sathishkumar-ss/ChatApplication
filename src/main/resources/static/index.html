@@ -14,6 +14,9 @@
         .chat-header {
             text-align: center;
             margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         
         .connecting {
@@ -48,6 +51,13 @@
         .hidden {
             display: none;
         }
+
+        .chat-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -71,6 +81,10 @@
                     <button type="submit" class="btn btn-primary">Send</button>
                 </div>
             </form>
+            <div class="chat-actions">
+                <span id="username"></span>
+                <button id="leaveButton" class="btn btn-danger" onclick="leaveChat()">Leave Chat</button>
+            </div>
         </div>
         
         <div id="username-page">

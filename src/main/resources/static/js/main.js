@@ -9,6 +9,7 @@ function connect(event) {
     if (username) {
         document.querySelector('#username-page').classList.add('hidden');
         document.querySelector('#chat-page').classList.remove('hidden');
+        document.querySelector('#username').textContent = username;
 
         const socket = new SockJS('/ws');
         stompClient = Stomp.over(socket);
@@ -55,6 +56,29 @@ function sendMessage(event) {
         messageInput.value = '';
     }
     event.preventDefault();
+}
+
+function leaveChat() {
+    if (stompClient) {
+        const chatMessage = {
+            sender: username,
+            type: 'LEAVE'
+        };
+
+        stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(chatMessage));
+        
+        // Disconnect from WebSocket
+        stompClient.disconnect(() => {
+            console.log("Disconnected");
+            // Reset the UI
+            document.querySelector('#chat-page').classList.add('hidden');
+            document.querySelector('#username-page').classList.remove('hidden');
+            document.querySelector('#name').value = '';
+            document.querySelector('#messageArea').innerHTML = '';
+            username = null;
+            stompClient = null;
+        });
+    }
 }
 
 function onMessageReceived(payload) {
@@ -111,6 +135,17 @@ function getAvatarColor(messageSender) {
     const colors = ['#2196F3', '#32c787', '#00BCD4', '#ff5652', '#ffc107', '#ff85af', '#FF9800', '#39bbb0'];
     return colors[Math.abs(hash % colors.length)];
 }
+
+// Add window unload event to handle page close/refresh
+window.addEventListener('beforeunload', function() {
+    if (stompClient) {
+        const chatMessage = {
+            sender: username,
+            type: 'LEAVE'
+        };
+        stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(chatMessage));
+    }
+});
 
 document.querySelector('#usernameForm').addEventListener('submit', connect, true);
 document.querySelector('#messageForm').addEventListener('submit', sendMessage, true); 
