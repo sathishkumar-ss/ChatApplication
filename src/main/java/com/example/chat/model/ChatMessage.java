@@ -14,6 +14,7 @@ public class ChatMessage {
     private String content;
     private String sender;
     private String time;
+    private String email;
 
     public enum MessageType {
         CHAT,
@@ -52,5 +53,13 @@ public class ChatMessage {
 
     public void setTime(String time) {
         this.time = time;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 } 
