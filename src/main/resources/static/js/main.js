@@ -3,20 +3,24 @@
 let stompClient = null;
 let username = null;
 
-function connect(event) {
-    username = document.querySelector('#name').value.trim();
-
+// Get username from authenticated user
+function initializeChat() {
+    const authenticatedUsernameElement = document.querySelector('#authenticatedUsername');
+    if (authenticatedUsernameElement) {
+        username = authenticatedUsernameElement.value;
+    }
+    
     if (username) {
-        document.querySelector('#username-page').classList.add('hidden');
         document.querySelector('#chat-page').classList.remove('hidden');
-        document.querySelector('#username').textContent = username;
 
         const socket = new SockJS('/ws');
         stompClient = Stomp.over(socket);
 
         stompClient.connect({}, onConnected, onError);
+    } else {
+        // Redirect to login if no authenticated user
+        window.location.href = '/login';
     }
-    event.preventDefault();
 }
 
 function onConnected() {
@@ -58,29 +62,6 @@ function sendMessage(event) {
     event.preventDefault();
 }
 
-function leaveChat() {
-    if (stompClient) {
-        const chatMessage = {
-            sender: username,
-            type: 'LEAVE'
-        };
-
-        stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(chatMessage));
-        
-        // Disconnect from WebSocket
-        stompClient.disconnect(() => {
-            console.log("Disconnected");
-            // Reset the UI
-            document.querySelector('#chat-page').classList.add('hidden');
-            document.querySelector('#username-page').classList.remove('hidden');
-            document.querySelector('#name').value = '';
-            document.querySelector('#messageArea').innerHTML = '';
-            username = null;
-            stompClient = null;
-        });
-    }
-}
-
 function onMessageReceived(payload) {
     const message = JSON.parse(payload.body);
     const messageArea = document.querySelector('#messageArea');
@@ -101,22 +82,27 @@ function onMessageReceived(payload) {
         const avatarText = document.createTextNode(message.sender[0]);
         avatarElement.appendChild(avatarText);
         avatarElement.style['background-color'] = getAvatarColor(message.sender);
+        avatarElement.style['padding'] = '5px 10px';
+        avatarElement.style['margin-right'] = '10px';
+        avatarElement.style['border-radius'] = '50%';
+        avatarElement.style['color'] = 'white';
+        avatarElement.style['font-weight'] = 'bold';
         messageElement.appendChild(avatarElement);
 
-        const usernameElement = document.createElement('span');
-        const usernameText = document.createTextNode(message.sender);
+        const usernameElement = document.createElement('strong');
+        const usernameText = document.createTextNode(message.sender + ': ');
         usernameElement.appendChild(usernameText);
         messageElement.appendChild(usernameElement);
     }
 
-    const textElement = document.createElement('p');
+    const textElement = document.createElement('span');
     const messageText = document.createTextNode(message.content);
     textElement.appendChild(messageText);
 
     if (message.time) {
-        const timeElement = document.createElement('span');
+        const timeElement = document.createElement('small');
         timeElement.classList.add('message-data-time');
-        const timeText = document.createTextNode(' ' + message.time);
+        const timeText = document.createTextNode(' (' + message.time + ')');
         timeElement.appendChild(timeText);
         textElement.appendChild(timeElement);
     }
@@ -138,7 +124,7 @@ function getAvatarColor(messageSender) {
 
 // Add window unload event to handle page close/refresh
 window.addEventListener('beforeunload', function() {
-    if (stompClient) {
+    if (stompClient && username) {
         const chatMessage = {
             sender: username,
             type: 'LEAVE'
@@ -147,5 +133,9 @@ window.addEventListener('beforeunload', function() {
     }
 });
 
-document.querySelector('#usernameForm').addEventListener('submit', connect, true);
+// Initialize chat when page loads
+window.addEventListener('DOMContentLoaded', function() {
+    initializeChat();
+});
+
 document.querySelector('#messageForm').addEventListener('submit', sendMessage, true); 

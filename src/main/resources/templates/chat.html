@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
     <title>Spring Boot WebSocket Chat Application</title>
@@ -17,6 +17,36 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid #007bff;
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .user-name {
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .user-email {
+            font-size: 0.8em;
+            color: #666;
+            margin: 0;
         }
         
         .connecting {
@@ -58,12 +88,32 @@
             align-items: center;
             margin-top: 10px;
         }
+
+        .logout-btn {
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+
+        .logout-btn:hover {
+            background-color: #c82333;
+            border-color: #bd2130;
+        }
     </style>
 </head>
 <body>
     <div class="chat-container">
         <div class="chat-header">
             <h2>Chat Application</h2>
+            <div class="user-info">
+                <img th:src="${userPicture}" alt="User Avatar" class="user-avatar" th:if="${userPicture}">
+                <div class="user-details">
+                    <p class="user-name" th:text="${username}">User</p>
+                    <p class="user-email" th:text="${userEmail}">user@email.com</p>
+                </div>
+                <form action="/logout" method="post" style="margin-left: 15px;">
+                    <button type="submit" class="btn btn-danger logout-btn btn-sm">Logout</button>
+                </form>
+            </div>
         </div>
         
         <div class="connecting">
@@ -81,22 +131,11 @@
                     <button type="submit" class="btn btn-primary">Send</button>
                 </div>
             </form>
-            <div class="chat-actions">
-                <span id="username"></span>
-                <button id="leaveButton" class="btn btn-danger" onclick="leaveChat()">Leave Chat</button>
-            </div>
-        </div>
-        
-        <div id="username-page">
-            <form id="usernameForm" class="needs-validation">
-                <div class="mb-3">
-                    <label for="name" class="form-label">Enter your name</label>
-                    <input type="text" class="form-control" id="name" placeholder="Username" required>
-                </div>
-                <button type="submit" class="btn btn-success">Start Chatting</button>
-            </form>
         </div>
     </div>
+
+    <!-- Hidden input to pass username to JavaScript -->
+    <input type="hidden" id="authenticatedUsername" th:value="${username}">
 
     <script src="/webjars/jquery/3.7.1/jquery.min.js"></script>
     <script src="/webjars/bootstrap/5.3.2/js/bootstrap.min.js"></script>
