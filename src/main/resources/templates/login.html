@@ -85,6 +85,10 @@
             Login failed. Please try again.
         </div>
         
+        <div th:if="${param.logout}" class="alert alert-success" role="alert" style="background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 10px; border-radius: 4px; margin-bottom: 20px; text-align: center;">
+            You have been logged out successfully.
+        </div>
+        
         <a href="/oauth2/authorization/google" class="google-btn">
             <svg class="google-icon" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>

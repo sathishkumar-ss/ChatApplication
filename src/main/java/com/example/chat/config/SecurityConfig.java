@@ -15,7 +15,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(authz -> authz
-                .requestMatchers("/login**", "/error**", "/webjars/**", "/css/**", "/js/**").permitAll()
+                .requestMatchers("/login**", "/error**", "/webjars/**", "/css/**", "/js/**", "/logout").permitAll()
                 .anyRequest().authenticated()
             )
             .oauth2Login(oauth2 -> oauth2
@@ -24,12 +24,14 @@ public class SecurityConfig {
                 .failureUrl("/login?error=true")
             )
             .logout(logout -> logout
-                .logoutSuccessUrl("/login")
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/login?logout=true")
                 .invalidateHttpSession(true)
                 .deleteCookies("JSESSIONID")
+                .permitAll()
             )
             .csrf(csrf -> csrf
-                .ignoringRequestMatchers("/ws/**")
+                .ignoringRequestMatchers("/ws/**", "/logout")
             );
 
         return http.build();
