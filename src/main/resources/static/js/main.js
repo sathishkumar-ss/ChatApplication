@@ -122,16 +122,8 @@ function getAvatarColor(messageSender) {
     return colors[Math.abs(hash % colors.length)];
 }
 
-// Add window unload event to handle page close/refresh
-window.addEventListener('beforeunload', function() {
-    if (stompClient && username) {
-        const chatMessage = {
-            sender: username,
-            type: 'LEAVE'
-        };
-        stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(chatMessage));
-    }
-});
+// Note: LEAVE messages are automatically handled by WebSocketEventListener
+// when the WebSocket connection is closed, so no manual beforeunload event needed
 
 // Initialize chat when page loads
 window.addEventListener('DOMContentLoaded', function() {
